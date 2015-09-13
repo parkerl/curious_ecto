@@ -56,44 +56,9 @@ defmodule Curious.TypedTable do
     Curious.TypedTable |> Curious.Repo.all
   end
 
-  def dynamic_say(%Curious.TypedTable{type: module_name} = record) do
-    IO.puts "dispatch via data"
-    say = quote do: Module.concat(__MODULE__, unquote(module_name)).say
-    Code.eval_quoted(say)
-  end
-
-  def pattern_say(%Curious.TypedTable{atom_type: :monkey} = record) do
-    IO.puts "dispatch via pattern"
-    Curious.MonkeySay.say
-  end
-
-  def pattern_say(%Curious.TypedTable{atom_type: :man} = record) do
-    IO.puts "dispatch via pattern"
-    Curious.ManSay.say
-  end
-
-  def run_dynamic_example do
+  def run_example do
     Curious.TypedTable.create_monkey
     Curious.TypedTable.create_man_in_yellow_hat
-    Curious.TypedTable.all |> Enum.each  &Curious.TypedTable.dynamic_say/1
-  end
-
-  def run_pattern_example do
-    Curious.TypedTable.create_monkey
-    Curious.TypedTable.create_man_in_yellow_hat
-    Curious.TypedTable.all |> Enum.each  &Curious.TypedTable.pattern_say/1
+    IO.inspect Curious.Repo.all( from t in Curious.TypedTable, where: (t.atom_type == :monkey))
   end
 end
-
-defmodule Curious.MonkeySay do
-  def say do
-    IO.puts "monkey say monkey do"
-  end
-end
-
-defmodule Curious.ManSay do
-  def say do
-    IO.puts "george!!"
-  end
-end
-
