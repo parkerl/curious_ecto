@@ -59,6 +59,6 @@ defmodule Curious.TypedTable do
   def run_example do
     Curious.TypedTable.create_monkey
     Curious.TypedTable.create_man_in_yellow_hat
-    IO.inspect Curious.Repo.all( from t in Curious.TypedTable, where: (t.atom_type == :monkey))
+    IO.inspect Curious.Repo.all( from t in Curious.TypedTable, where: (t.atom_type == ^:monkey))
   end
 end
