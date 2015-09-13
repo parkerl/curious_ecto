@@ -23,33 +23,29 @@ end
 
 defmodule Curious.TypedTable do
   use Ecto.Model
-  defmodule Type do
+  defmodule AtomType do
     @behaviour Ecto.Type
     def type, do: :string
 
-    def cast(atom) when is_atom(atom), do: {:ok, Atom.to_string(atom)}
-    def cast(_),     do: :error
+    def cast(value), do: {:ok, value}
 
     def load(value), do: {:ok, String.to_atom(value)}
 
     def dump(value) when is_atom(value), do: {:ok, Atom.to_string(value)}
-    def dump(value) when is_binary(value), do: {:ok, value}
     def dump(_), do: :error
   end
 
   schema "typed_table" do
-    field :type, :string
-    field :atom_type, Curious.TypedTable.Type
+    field :atom_type, Curious.TypedTable.AtomType
     timestamps
   end
 
-
   def create_monkey do
-    %Curious.TypedTable{type: "Curious.MonkeySay", atom_type: :monkey} |> Curious.Repo.insert!
+    %Curious.TypedTable{atom_type: :monkey} |> Curious.Repo.insert!
   end
 
   def create_man_in_yellow_hat do
-    %Curious.TypedTable{type: "Curious.ManSay", atom_type: :man} |> Curious.Repo.insert!
+    %Curious.TypedTable{atom_type: :man} |> Curious.Repo.insert!
   end
 
   def all do
