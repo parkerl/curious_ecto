@@ -27,12 +27,7 @@ defmodule Curious.TypedTable do
     @behaviour Ecto.Type
     def type, do: :string
 
-    def cast(atom) when is_atom(atom) do
-      IO.puts "In atom"
-        {:ok, Atom.to_string(atom)}
-    end
-
-    def cast(string) when is_binary(string),     do: {:ok, string}
+    def cast(atom) when is_atom(atom), do: {:ok, Atom.to_string(atom)}
     def cast(_),     do: :error
 
     def load(value), do: {:ok, String.to_atom(value)}
@@ -54,23 +49,39 @@ defmodule Curious.TypedTable do
   end
 
   def create_man_in_yellow_hat do
-    %Curious.TypedTable{type: "Curious.ManSay", atom_type: "man"} |> Curious.Repo.insert!
+    %Curious.TypedTable{type: "Curious.ManSay", atom_type: :man} |> Curious.Repo.insert!
   end
 
   def all do
     Curious.TypedTable |> Curious.Repo.all
   end
 
-  def say(%Curious.TypedTable{type: module_name} = record) do
+  def dynamic_say(%Curious.TypedTable{type: module_name} = record) do
+    IO.puts "dispatch via data"
     say = quote do: Module.concat(__MODULE__, unquote(module_name)).say
     Code.eval_quoted(say)
-    IO.inspect record
   end
 
-  def run_example do
+  def pattern_say(%Curious.TypedTable{atom_type: :monkey} = record) do
+    IO.puts "dispatch via pattern"
+    Curious.MonkeySay.say
+  end
+
+  def pattern_say(%Curious.TypedTable{atom_type: :man} = record) do
+    IO.puts "dispatch via pattern"
+    Curious.ManSay.say
+  end
+
+  def run_dynamic_example do
     Curious.TypedTable.create_monkey
     Curious.TypedTable.create_man_in_yellow_hat
-    Curious.TypedTable.all |> Enum.each  &Curious.TypedTable.say/1
+    Curious.TypedTable.all |> Enum.each  &Curious.TypedTable.dynamic_say/1
+  end
+
+  def run_pattern_example do
+    Curious.TypedTable.create_monkey
+    Curious.TypedTable.create_man_in_yellow_hat
+    Curious.TypedTable.all |> Enum.each  &Curious.TypedTable.pattern_say/1
   end
 end
 
